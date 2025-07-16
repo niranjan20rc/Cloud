@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simple Calculator</title>
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #282c34;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  .calculator {
+    background: #1e2127;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #61dafb;
+    width: 300px;
+  }
+  .display {
+    background: #121416;
+    color: #61dafb;
+    font-size: 2rem;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: right;
+    margin-bottom: 20px;
+    user-select: none;
+    min-height: 50px;
+  }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  button {
+    font-size: 1.2rem;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    background: #61dafb;
+    color: #1e2127;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #21a1f1;
+  }
+  button.operator {
+    background: #f06c00;
+    color: white;
+  }
+  button.operator:hover {
+    background: #d35c00;
+  }
+  button.equal {
+    grid-column: span 2;
+    background: #00c853;
+    color: white;
+  }
+  button.equal:hover {
+    background: #009624;
+  }
+  button.clear {
+    background: #d32f2f;
+    color: white;
+  }
+  button.clear:hover {
+    background: #a02525;
+  }
+</style>
+</head>
+<body>
+
+<div class="calculator">
+  <div id="display" class="display">0</div>
+  <div class="buttons">
+    <button class="clear" id="clear">C</button>
+    <button class="operator" data-operator="/">÷</button>
+    <button class="operator" data-operator="*">×</button>
+    <button class="operator" data-operator="-">−</button>
+
+    <button data-number="7">7</button>
+    <button data-number="8">8</button>
+    <button data-number="9">9</button>
+    <button class="operator" data-operator="+">+</button>
+
+    <button data-number="4">4</button>
+    <button data-number="5">5</button>
+    <button data-number="6">6</button>
+    <button data-number="0">0</button>
+
+    <button data-number="1">1</button>
+    <button data-number="2">2</button>
+    <button data-number="3">3</button>
+    <button class="equal" id="equals">=</button>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const display = document.getElementById('display');
+    let currentInput = '0';
+    let previousInput = null;
+    let operator = null;
+    let resetNext = false;
+
+    function updateDisplay() {
+      display.textContent = currentInput;
+    }
+
+    function clear() {
+      currentInput = '0';
+      previousInput = null;
+      operator = null;
+      resetNext = false;
+      updateDisplay();
+    }
+
+    function inputNumber(num) {
+      if (resetNext) {
+        currentInput = num;
+        resetNext = false;
+      } else {
+        currentInput = currentInput === '0' ? num : currentInput + num;
+      }
+      updateDisplay();
+    }
+
+    function inputOperator(op) {
+      if (operator && !resetNext) {
+        calculate();
+      }
+      previousInput = currentInput;
+      operator = op;
+      resetNext = true;
+    }
+
+    function calculate() {
+      if (operator == null || resetNext) return;
+
+      let prev = parseFloat(previousInput);
+      let curr = parseFloat(currentInput);
+      let result;
+
+      switch(operator) {
+        case '+': result = prev + curr; break;
+        case '-': result = prev - curr; break;
+        case '*': result = prev * curr; break;
+        case '/': 
+          if (curr === 0) {
+            alert("Error: Division by zero");
+            clear();
+            return;
+          }
+          result = prev / curr; 
+          break;
+        default:
+          return;
+      }
+
+      currentInput = result.toString();
+      operator = null;
+      previousInput = null;
+      resetNext = true;
+      updateDisplay();
+    }
+
+    // Attach event listeners
+    document.querySelectorAll('button[data-number]').forEach(button => {
+      button.addEventListener('click', () => {
+        inputNumber(button.getAttribute('data-number'));
+      });
+    });
+
+    document.querySelectorAll('button.operator').forEach(button => {
+      button.addEventListener('click', () => {
+        inputOperator(button.getAttribute('data-operator'));
+      });
+    });
+
+    document.getElementById('equals').addEventListener('click', calculate);
+    document.getElementById('clear').addEventListener('click', clear);
+
+    // Initialize display
+    updateDisplay();
+  })();
+</script>
+
+</body>
+</html>
